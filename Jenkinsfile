@@ -8,12 +8,6 @@ pipeline {
 
     stages {
 
-        stage("Clone GitHub Repo") {
-            steps {
-                git url: "https://github.com/harshapradha07/Login-Signup-form.git",
-                    branch: "main"
-            }
-        }
 
         stage("Build Docker Image") {
             steps {
