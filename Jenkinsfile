@@ -3,28 +3,26 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "harshapradha07/login-app"
-        DOCKER_CREDENTIALS = "dockerhub-login"
     }
 
     stages {
 
-
         stage("Build Docker Image") {
             steps {
-                sh "docker build -t $DOCKER_IMAGE:latest ."
+                bat "docker build -t %DOCKER_IMAGE%:latest ."
             }
         }
 
         stage("Push Image to DockerHub") {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: "$DOCKER_CREDENTIALS",
+                    credentialsId: "dockerhub-login",
                     usernameVariable: "DOCKER_USER",
                     passwordVariable: "DOCKER_PASS"
                 )]) {
-                    sh """
-                    docker login -u $DOCKER_USER -p $DOCKER_PASS
-                    docker push $DOCKER_IMAGE:latest
+                    bat """
+                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                    docker push %DOCKER_IMAGE%:latest
                     """
                 }
             }
@@ -32,17 +30,11 @@ pipeline {
 
         stage("Deploy to Kubernetes") {
             steps {
-                sh """
+                bat """
                 kubectl apply -f deployment.yaml
                 kubectl rollout restart deployment login-deployment
                 """
             }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Login Signup Website Successfully Deployed!"
         }
     }
 }
